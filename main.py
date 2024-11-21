@@ -1,4 +1,5 @@
 from openpyxl import Workbook, load_workbook
+import bcrypt
 
 def is_valid_password(password): #เช็คพาสเวิดให้มันเกิน 8 ตัว ละก็ต้องมีเลข
     has_number = any(char.isdigit() for char in password)
@@ -29,8 +30,10 @@ def register():
             break
         else:
             print("Invalid password! 😢 Must contain letters, numbers, and be at least 8 characters long.")
+    #เข้ารหัสpassword
+    hashed_password = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
 
-    sheet.append([username, password])
+    sheet.append([username, hashed_password])
     workbook.save("users.xlsx")
     print("Registration successful! 🎉")
 
@@ -48,7 +51,8 @@ def login():
 
     # ตรวจสอบข้อมูลว่าตรงกับในไฟล์ไหม loop ผ่านทุกแถวในเอกเซล ยกเว้นแถวแรก เพราะแถวแรกกูเอาไว้ใส่ชื่อ ละถ้าเจอที่ยูเซอเนมกะพาสตรงกันก็รีเทินซักเซส
     for row in sheet.iter_rows(min_row=2, values_only=True):
-        if username == row[0] and password == row[1]:
+        db_username, db_password = row
+        if username == db_username and bcrypt.checkpw(password.encode(), db_password.encode()):
             print("Login successful! ✨")
             return
     print("Invalid username or password! 😞")
