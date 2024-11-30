@@ -52,7 +52,8 @@ def login():
     # ตรวจสอบข้อมูลว่าตรงกับในไฟล์ไหม loop ผ่านทุกแถวในเอกเซล ยกเว้นแถวแรก เพราะแถวแรกกูเอาไว้ใส่ชื่อ ละถ้าเจอที่ยูเซอเนมกะพาสตรงกันก็รีเทินซักเซส
     for row in sheet.iter_rows(min_row=2, values_only=True):
         db_username, db_password = row
-        if username == db_username and bcrypt.checkpw(password.encode(), db_password.encode()):
+        if username == db_username and bcrypt.checkpw(password.encode(), db_password if isinstance(db_password,
+                                                                                                   bytes) else db_password.encode()):
             print("Login successful! ✨")
             return
     print("Invalid username or password! 😞")
